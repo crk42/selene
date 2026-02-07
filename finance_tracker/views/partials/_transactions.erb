@@ -1,0 +1,33 @@
+<div class="transactions-section">
+  <h2 class="section-title">Recent Transactions</h2>
+  <div class="transactions-list">
+    <% if @recent_transactions.any? %>
+      <% @recent_transactions.each do |transaction| %>
+        <div class="transaction-item <%= transaction.transaction_type %>">
+          <div class="transaction-left">
+            <div class="transaction-icon">
+              <%= transaction.transaction_type == 'income' ? '💵' : '💳' %>
+            </div>
+            <div class="transaction-details">
+              <div class="transaction-description"><%= transaction.description %></div>
+              <div class="transaction-meta">
+                <%= transaction.transaction_date.strftime('%b %d, %Y') %>
+                <% if transaction.category %>
+                  <span class="category-badge"><%= transaction.category %></span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+          <div class="transaction-amount <%= transaction.transaction_type %>">
+            <%= transaction.transaction_type == 'income' ? '+' : '-' %>$<%= number_with_precision(transaction.amount, precision: 2, delimiter: ',') %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <p>No transactions yet. Start tracking your finances!</p>
+      </div>
+    <% end %>
+  </div>
+</div>

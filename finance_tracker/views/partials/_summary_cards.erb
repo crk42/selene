@@ -1,0 +1,30 @@
+<div class="summary-cards">
+  <div class="card card-income">
+    <div class="card-icon">📈</div>
+    <div class="card-content">
+      <div class="card-label">Total Income</div>
+      <div class="card-value">$<%= number_with_precision(@total_income, precision: 2, delimiter: ',') %></div>
+      <div class="card-sublabel">This month: $<%= number_with_precision(@month_income, precision: 2, delimiter: ',') %></div>
+    </div>
+  </div>
+
+  <div class="card card-expense">
+    <div class="card-icon">📉</div>
+    <div class="card-content">
+      <div class="card-label">Total Expenses</div>
+      <div class="card-value">$<%= number_with_precision(@total_expenses, precision: 2, delimiter: ',') %></div>
+      <div class="card-sublabel">This month: $<%= number_with_precision(@month_expenses, precision: 2, delimiter: ',') %></div>
+    </div>
+  </div>
+
+  <div class="card card-balance">
+    <div class="card-icon">💎</div>
+    <div class="card-content">
+      <div class="card-label">Current Balance</div>
+      <div class="card-value <%= @current_balance >= 0 ? 'positive' : 'negative' %>">
+        $<%= number_with_precision(@current_balance.abs, precision: 2, delimiter: ',') %>
+      </div>
+      <div class="card-sublabel"><%= @current_balance >= 0 ? 'Surplus' : 'Deficit' %></div>
+    </div>
+  </div>
+</div>

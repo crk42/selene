@@ -73,8 +73,33 @@ get '/' do
   erb :dashboard
 end
 
+post '/transactions' do
+  # Parse amount to ensure it is a valid decimal
+  amount = params[:amount].to_f
+  
+  transaction = Transaction.new(
+    description: params[:description],
+    amount: amount,
+    transaction_type: params[:transaction_type],
+    category: params[:category],
+    transaction_date: Date.parse(params[:transaction_date])
+  )
+
+  if transaction.save
+    redirect '/'
+  else
+    # In a real app, we would render the form again with errors
+    # For now, just redirect back
+    redirect '/'
+  end
+end
+
 # Helper methods
 helpers do
+  def partial(template, locals = {})
+    erb :"partials/#{template}", { layout: false }, locals
+  end
+
   def number_with_precision(number, options = {})
     precision = options[:precision] || 2
     delimiter = options[:delimiter] || ','
