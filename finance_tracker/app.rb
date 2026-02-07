@@ -105,6 +105,14 @@ post '/transactions/:id/delete' do
   redirect back
 end
 
+post '/transactions/bulk-delete' do
+  ids = params[:ids]
+  if ids && ids.any?
+    Transaction.where(id: ids).destroy_all
+  end
+  redirect back
+end
+
 # Helper methods
 helpers do
   def partial(template, locals = {})

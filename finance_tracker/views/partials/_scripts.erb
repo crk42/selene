@@ -88,4 +88,42 @@
       modal.style.display = "none";
     }
   }
+
+  // Bulk Selection Logic
+  const selectAll = document.getElementById('selectAll');
+  const transactionCheckboxes = document.querySelectorAll('.transaction-checkbox');
+  const bulkActionBar = document.getElementById('bulkActionBar');
+  const selectedCount = document.getElementById('selectedCount');
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      transactionCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAll.checked;
+      });
+      updateBulkActionBar();
+    });
+
+    transactionCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateBulkActionBar();
+        
+        // Update Select All state
+        const allChecked = Array.from(transactionCheckboxes).every(cb => cb.checked);
+        const noneChecked = Array.from(transactionCheckboxes).every(cb => !cb.checked);
+        selectAll.checked = allChecked;
+        selectAll.indeterminate = !allChecked && !noneChecked;
+      });
+    });
+  }
+
+  function updateBulkActionBar() {
+    const checkedCount = Array.from(transactionCheckboxes).filter(cb => cb.checked).length;
+    
+    if (checkedCount > 0) {
+      bulkActionBar.classList.remove('hidden');
+      selectedCount.textContent = `${checkedCount} item${checkedCount > 1 ? 's' : ''} selected`;
+    } else {
+      bulkActionBar.classList.add('hidden');
+    }
+  }
 </script>

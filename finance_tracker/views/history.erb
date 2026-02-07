@@ -5,42 +5,61 @@
       <a href="/" class="btn-text">← Back to Dashboard</a>
     </div>
 
-    <div class="transactions-list">
-      <% if @transactions.any? %>
-        <% @transactions.each do |transaction| %>
-          <div class="transaction-item <%= transaction.transaction_type %>">
-            <div class="transaction-left">
-              <div class="transaction-icon">
-                <%= transaction.transaction_type == 'income' ? '💵' : '💳' %>
-              </div>
-              <div class="transaction-details">
-                <div class="transaction-description"><%= transaction.description %></div>
-                <div class="transaction-meta">
-                  <%= transaction.transaction_date.strftime('%b %d, %Y') %>
-                  <% if transaction.category %>
-                    <span class="category-badge"><%= transaction.category %></span>
-                  <% end %>
+    <form id="bulkDeleteForm" action="/transactions/bulk-delete" method="POST">
+      <div class="bulk-actions-toolbar">
+        <div class="select-all-wrapper">
+          <input type="checkbox" id="selectAll" class="custom-checkbox">
+          <label for="selectAll">Select All</label>
+        </div>
+        <div id="bulkActionBar" class="bulk-action-bar hidden">
+          <span id="selectedCount">0 items selected</span>
+          <button type="submit" class="btn-danger-small" onclick="return confirm('Delete selected transactions?')">
+            Delete Selected
+          </button>
+        </div>
+      </div>
+
+      <div class="transactions-list">
+        <% if @transactions.any? %>
+          <% @transactions.each do |transaction| %>
+            <div class="transaction-item <%= transaction.transaction_type %>">
+              <div class="transaction-left">
+                <div class="checkbox-wrapper">
+                  <input type="checkbox" name="ids[]" value="<%= transaction.id %>" class="transaction-checkbox custom-checkbox">
+                </div>
+                <div class="transaction-icon">
+                  <%= transaction.transaction_type == 'income' ? '💵' : '💳' %>
+                </div>
+                <div class="transaction-details">
+                  <div class="transaction-description"><%= transaction.description %></div>
+                  <div class="transaction-meta">
+                    <%= transaction.transaction_date.strftime('%b %d, %Y') %>
+                    <% if transaction.category %>
+                      <span class="category-badge"><%= transaction.category %></span>
+                    <% end %>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="transaction-right">
-              <div class="transaction-amount <%= transaction.transaction_type %>">
-                <%= transaction.transaction_type == 'income' ? '+' : '-' %>$<%= number_with_precision(transaction.amount, precision: 2, delimiter: ',') %>
+              <div class="transaction-right">
+                <div class="transaction-amount <%= transaction.transaction_type %>">
+                  <%= transaction.transaction_type == 'income' ? '+' : '-' %>$<%= number_with_precision(transaction.amount, precision: 2, delimiter: ',') %>
+                </div>
+                <!-- Single delete button still available for quick action -->
+                <form action="/transactions/<%= transaction.id %>/delete" method="POST" style="display:inline;">
+                  <button type="submit" class="btn-delete" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                  </button>
+                </form>
               </div>
-              <form action="/transactions/<%= transaction.id %>/delete" method="POST">
-                <button type="submit" class="btn-delete" title="Delete">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                </button>
-              </form>
             </div>
+          <% end %>
+        <% else %>
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <p>No transactions found.</p>
           </div>
         <% end %>
-      <% else %>
-        <div class="empty-state">
-          <div class="empty-icon">📊</div>
-          <p>No transactions found.</p>
-        </div>
-      <% end %>
-    </div>
+      </div>
+    </form>
   </div>
 </main>
