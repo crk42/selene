@@ -1,0 +1,3 @@
+@echo off
+echo Starting Finance Tracker Server...
+bundle exec ruby -e "require './app'; Sinatra::Application.run!"
