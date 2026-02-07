@@ -73,6 +73,11 @@ get '/' do
   erb :dashboard
 end
 
+get '/transactions' do
+  @transactions = Transaction.recent
+  erb :history
+end
+
 post '/transactions' do
   # Parse amount to ensure it is a valid decimal
   amount = params[:amount].to_f
@@ -92,6 +97,12 @@ post '/transactions' do
     # For now, just redirect back
     redirect '/'
   end
+end
+
+post '/transactions/:id/delete' do
+  transaction = Transaction.find(params[:id])
+  transaction.destroy
+  redirect back
 end
 
 # Helper methods

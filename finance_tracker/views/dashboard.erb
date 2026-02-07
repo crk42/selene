@@ -1,27 +1,5 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Finance Tracker</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    <%= File.read('public/styles.css') %>
-  </style>
-</head>
-<body>
-  <div class="dashboard-container">
-    <%= partial :_header %>
-    <%= partial :_modal %>
-
-    <main class="dashboard-main">
-      <%= partial :_summary_cards %>
-      <%= partial :_charts %>
-      <%= partial :_transactions %>
-    </main>
-  </div>
-
-  <%= partial :_scripts %>
-</body>
-</html>
+<main class="dashboard-main">
+  <%= partial :_summary_cards %>
+  <%= partial :_charts %>
+  <%= partial :_transactions %>
+</main>

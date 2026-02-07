@@ -1,72 +1,75 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   // Monthly trend chart
-  const ctx = document.getElementById('monthlyChart').getContext('2d');
-  const monthlyData = <%= @monthly_data.to_json %>;
-  
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: monthlyData.map(d => d.month),
-      datasets: [
-        {
-          label: 'Income',
-          data: monthlyData.map(d => d.income),
-          borderColor: 'rgb(34, 197, 94)',
-          backgroundColor: 'rgba(34, 197, 94, 0.1)',
-          tension: 0.4,
-          fill: true
-        },
-        {
-          label: 'Expenses',
-          data: monthlyData.map(d => d.expenses),
-          borderColor: 'rgb(239, 68, 68)',
-          backgroundColor: 'rgba(239, 68, 68, 0.1)',
-          tension: 0.4,
-          fill: true
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: true,
-          position: 'top',
-          labels: {
-            color: '#e5e7eb',
-            font: {
-              family: 'Inter',
-              size: 12
-            }
+  const chartElement = document.getElementById('monthlyChart');
+  if (chartElement) {
+    const ctx = chartElement.getContext('2d');
+    const monthlyData = <%= (@monthly_data || []).to_json %>;
+    
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: monthlyData.map(d => d.month),
+        datasets: [
+          {
+            label: 'Income',
+            data: monthlyData.map(d => d.income),
+            borderColor: 'rgb(34, 197, 94)',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Expenses',
+            data: monthlyData.map(d => d.expenses),
+            borderColor: 'rgb(239, 68, 68)',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true
           }
-        }
+        ]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
-          },
-          ticks: {
-            color: '#9ca3af',
-            callback: function(value) {
-              return '$' + value.toLocaleString();
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              color: '#e5e7eb',
+              font: {
+                family: 'Inter',
+                size: 12
+              }
             }
           }
         },
-        x: {
-          grid: {
-            color: 'rgba(255, 255, 255, 0.1)'
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#9ca3af',
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
           },
-          ticks: {
-            color: '#9ca3af'
+          x: {
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#9ca3af'
+            }
           }
         }
       }
-    }
-  });
+    });
+  }
 
   // Modal functionality
   const modal = document.getElementById("transactionModal");

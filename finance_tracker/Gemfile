@@ -10,3 +10,8 @@ gem 'puma'
 gem 'rake'
 gem 'rackup'
 gem 'webrick'
+
+group :development, :test do
+  gem 'rack-test'
+  gem 'minitest'
+end
