@@ -53,6 +53,12 @@ class Transaction < ActiveRecord::Base
     end
     results.reverse
   end
+
+  def self.category_expenses(start_date = nil, end_date = nil)
+    scope = expense
+    scope = scope.where(transaction_date: start_date..end_date) if start_date && end_date
+    scope.group(:category).sum(:amount)
+  end
 end
 
 # Routes
@@ -69,6 +75,7 @@ get '/' do
   month_end = Date.new(Date.today.year, Date.today.month, -1)
   @month_income = Transaction.total_income(month_start, month_end)
   @month_expenses = Transaction.total_expenses(month_start, month_end)
+  @category_data = Transaction.category_expenses(month_start, month_end)
   
   erb :dashboard
 end

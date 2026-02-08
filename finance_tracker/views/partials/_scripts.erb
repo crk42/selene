@@ -71,6 +71,65 @@
     });
   }
 
+  // Category breakdown pie chart
+  const breakdownElement = document.getElementById('typeBreakdownChart');
+  if (breakdownElement) {
+    const ctx = breakdownElement.getContext('2d');
+    const categoryData = <%= (@category_data || {}).to_json %>;
+    const labels = Object.keys(categoryData);
+    const values = Object.values(categoryData);
+    
+    const colors = [
+      '#6366f1', '#8b5cf6', '#ec4899', '#ef4444', 
+      '#f59e0b', '#10b981', '#06b6d4', '#3b82f6',
+      '#a855f7', '#f43f5e', '#fb923c', '#2dd4bf'
+    ];
+    
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labels,
+        datasets: [{
+          data: values,
+          backgroundColor: colors.slice(0, labels.length),
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              color: '#e5e7eb',
+              padding: 20,
+              usePointStyle: true,
+              font: {
+                family: 'Inter',
+                size: 11,
+                weight: '500'
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
   // Modal functionality
   const modal = document.getElementById("transactionModal");
   
