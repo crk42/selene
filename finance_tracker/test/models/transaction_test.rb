@@ -93,4 +93,17 @@ class TransactionTest < Minitest::Test
     assert_equal Date.today.strftime('%B %Y'), summary.last[:month]
     assert_equal 1000.0, summary.last[:income]
   end
+
+  def test_category_expenses
+    Transaction.create!(description: 'Rent', amount: 1500, transaction_type: 'expense', transaction_date: Date.today, category: 'Housing')
+    Transaction.create!(description: 'Groceries', amount: 300, transaction_type: 'expense', transaction_date: Date.today, category: 'Food')
+    Transaction.create!(description: 'Lunch', amount: 20, transaction_type: 'expense', transaction_date: Date.today, category: 'Food')
+    Transaction.create!(description: 'Salary', amount: 5000, transaction_type: 'income', transaction_date: Date.today, category: 'Work')
+
+    categories = Transaction.category_expenses
+    assert_equal 2, categories.keys.length
+    assert_equal 1500, categories['Housing']
+    assert_equal 320, categories['Food']
+    assert_nil categories['Work'] # Should only include expenses
+  end
 end

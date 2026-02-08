@@ -2,6 +2,7 @@ ENV['RACK_ENV'] = 'test'
 
 require 'minitest/autorun'
 require 'rack/test'
+require 'logger'
 require 'active_record'
 require_relative '../app'
 
