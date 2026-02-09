@@ -26,20 +26,25 @@
         
         <div class="form-group half">
           <label for="category">Category</label>
-          <select id="category" name="category" required>
-            <option value="Groceries">Groceries</option>
-            <option value="Rent">Rent</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Transportation">Transportation</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Dining">Dining</option>
-            <option value="Salary">Salary</option>
-            <option value="Freelance">Freelance</option>
-            <option value="Investment">Investment</option>
-            <option value="Other">Other</option>
-          </select>
+          <div class="category-wrapper">
+            <select id="category" name="category" required onchange="checkNewCategory(this)">
+              <option value="" disabled selected>Select a category</option>
+              <% if @categories %>
+                <% @categories.each do |type, categories| %>
+                  <optgroup label="<%= type.capitalize %>">
+                    <% categories.each do |cat| %>
+                      <option value="<%= cat.name %>" data-type="<%= cat.category_type %>"><%= cat.name %></option>
+                    <% end %>
+                  </optgroup>
+                <% end %>
+              <% end %>
+              <option value="new_category_option">+ Create New Category</option>
+            </select>
+            <div id="newCategoryInput" class="hidden" style="margin-top: 5px; display: none;">
+              <input type="text" id="newCategoryName" placeholder="Enter new category name">
+              <button type="button" class="btn-small" onclick="saveNewCategory()">Add</button>
+            </div>
+          </div>
         </div>
       </div>
       

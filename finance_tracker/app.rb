@@ -10,6 +10,12 @@ ActiveRecord::Base.establish_connection(
   database: 'db/finance_tracker.db'
 )
 
+# Category model
+class Category < ActiveRecord::Base
+  validates :name, presence: true, uniqueness: true
+  validates :category_type, presence: true, inclusion: { in: %w[income expense] }
+end
+
 # Transaction model
 class Transaction < ActiveRecord::Base
   validates :description, presence: true
@@ -61,6 +67,21 @@ class Transaction < ActiveRecord::Base
   end
 end
 
+# Seed categories if empty
+if ActiveRecord::Base.connection.table_exists?(:categories) && Category.count == 0
+  puts "Seeding default categories..."
+  defaults = {
+    'income' => ['Salary', 'Freelance', 'Investment', 'Bonus', 'Gift', 'Other'],
+    'expense' => ['Groceries', 'Rent', 'Utilities', 'Entertainment', 'Transportation', 'Healthcare', 'Shopping', 'Dining', 'Other']
+  }
+  
+  defaults.each do |type, names|
+    names.each do |name|
+      Category.create(name: name, category_type: type)
+    end
+  end
+end
+
 # Routes
 get '/' do
   @total_income = Transaction.total_income
@@ -76,6 +97,7 @@ get '/' do
   @month_income = Transaction.total_income(month_start, month_end)
   @month_expenses = Transaction.total_expenses(month_start, month_end)
   @category_data = Transaction.category_expenses(month_start, month_end)
+  @categories = Category.all.group_by(&:category_type) rescue {}
   
   erb :dashboard
 end
@@ -118,6 +140,31 @@ post '/transactions/bulk-delete' do
     Transaction.where(id: ids).destroy_all
   end
   redirect back
+end
+
+get '/categories' do
+  content_type :json
+  categories = Category.all.group_by(&:category_type)
+  categories.to_json
+end
+
+post '/categories' do
+  name = params[:name]
+  type = params[:type]
+  
+  if name && type
+    category = Category.new(name: name, category_type: type)
+    if category.save
+      status 201
+      json category
+    else
+      status 422
+      json({ error: category.errors.full_messages })
+    end
+  else
+    status 400
+    json({ error: "Missing name or type" })
+  end
 end
 
 # Helper methods

@@ -185,4 +185,96 @@
       bulkActionBar.classList.add('hidden');
     }
   }
+
+  function checkNewCategory(select) {
+    const newCategoryInput = document.getElementById('newCategoryInput');
+    if (select.value === 'new_category_option') {
+      newCategoryInput.style.display = 'flex';
+      newCategoryInput.querySelector('input').focus();
+    } else {
+      newCategoryInput.style.display = 'none';
+    }
+  }
+
+  function saveNewCategory() {
+    const nameInput = document.getElementById('newCategoryName');
+    const name = nameInput.value.trim();
+    const typeSelect = document.getElementById('transaction_type');
+    const type = typeSelect.value;
+    const categorySelect = document.getElementById('category');
+
+    if (!name) return;
+
+    fetch('/categories', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `name=${encodeURIComponent(name)}&type=${encodeURIComponent(type)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.error) {
+        alert(data.error);
+      } else {
+        // Create new option
+        const option = document.createElement('option');
+        option.value = data.name;
+        option.text = data.name;
+        option.selected = true;
+        option.dataset.type = data.category_type;
+
+        // Find or create optgroup
+        let optgroup = Array.from(categorySelect.getElementsByTagName('optgroup'))
+          .find(g => g.label.toLowerCase() === data.category_type);
+        
+        if (!optgroup) {
+          optgroup = document.createElement('optgroup');
+          optgroup.label = data.category_type.charAt(0).toUpperCase() + data.category_type.slice(1);
+          // Insert before "Create New" option
+          categorySelect.insertBefore(optgroup, categorySelect.options[categorySelect.options.length - 1]);
+        }
+        
+        optgroup.appendChild(option);
+        
+        // Reset input
+        document.getElementById('newCategoryInput').style.display = 'none';
+        nameInput.value = '';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Failed to create category');
+    });
+  }
+
+  // Filter categories based on transaction type
+  const typeSelect = document.getElementById('transaction_type');
+  const categorySelect = document.getElementById('category');
+  
+  if (typeSelect && categorySelect) {
+    typeSelect.addEventListener('change', function() {
+      const selectedType = this.value;
+      const options = categorySelect.querySelectorAll('option');
+      const optgroups = categorySelect.querySelectorAll('optgroup');
+      
+      optgroups.forEach(group => {
+        if (group.label.toLowerCase() === selectedType) {
+          group.style.display = '';
+        } else {
+          group.style.display = 'none';
+        }
+      });
+
+      // Reset selection if hidden
+      if (categorySelect.selectedOptions[0] && 
+          categorySelect.selectedOptions[0].dataset.type && 
+          categorySelect.selectedOptions[0].dataset.type !== selectedType) {
+        categorySelect.value = "";
+      }
+    });
+    
+    // Trigger initially
+    typeSelect.dispatchEvent(new Event('change'));
+  }
 </script>
