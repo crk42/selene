@@ -3,6 +3,7 @@ require 'sinatra/json'
 require 'active_record'
 require 'json'
 require 'date'
+require 'csv'
 
 # Database configuration
 ActiveRecord::Base.establish_connection(
@@ -164,6 +165,82 @@ post '/categories' do
   else
     status 400
     json({ error: "Missing name or type" })
+  end
+end
+
+post '/import' do
+  if params[:file] && params[:file][:tempfile]
+    file = params[:file][:tempfile]
+    count = 0
+    
+    # Keyword mapping for categorization
+    keywords = {
+      'groceries' => ['woolworths', 'coles', 'aldi', 'iga', 'food'],
+      'transportation' => ['uber', 'did', 'ola', 'taxi', 'train', 'bus', 'opal', 'myki', 'fuel', 'petrol', 'bp', 'shell', '7-eleven', 'caltex', 'ampol'],
+      'dining' => ['restaurant', 'cafe', 'coffee', 'mcdonalds', 'kfc', 'hungry jacks', 'dominos', 'pizza', 'burger', 'sushi', 'grill', 'eats', 'menulog', 'doordash'],
+      'utilities' => ['energy', 'water', 'gas', 'telecom', 'internet', 'telstra', 'optus', 'vodafone', 'electricity'],
+      'entertainment' => ['netflix', 'spotify', 'movie', 'cinema', 'steam', 'playstation', 'xbox', 'nintendo'],
+      'healthcare' => ['pharmacy', 'chemist', 'doctor', 'medical', 'dental', 'hospital', 'medicare'],
+      'shopping' => ['kmart', 'target', 'big w', 'myer', 'david jones', 'amazon', 'ebay', 'ikea', 'bunnings']
+    }
+
+    CSV.foreach(file, headers: false) do |row|
+      # CBA Format: Date, Amount, Description, Balance
+      # Example: 13/02/2026,"-75.00","Transfer To Ubank Saver - New App 2022 CommBank App food","+24.41"
+      
+      next if row.length < 3 || row[0].nil? # Skip invalid rows
+      
+      begin
+        date_str = row[0]
+        amount_str = row[1].gsub(',', '')
+        description = row[2]
+        
+        # Parse date (DD/MM/YYYY)
+        transaction_date = Date.strptime(date_str, '%d/%m/%Y')
+        
+        # Parse amount and type
+        amount_val = amount_str.to_f
+        transaction_type = amount_val < 0 ? 'expense' : 'income'
+        amount = amount_val.abs
+        
+        # Auto-categorize
+        category = 'Other' # Default
+        if transaction_type == 'income'
+          category = 'Salary' if description.downcase.include?('salary') || description.downcase.include?('wages')
+        else
+          desc_lower = description.downcase
+          
+          # Check keyword mapping
+          keywords.each do |cat_key, terms|
+            if terms.any? { |term| desc_lower.include?(term) }
+              category = cat_key.capitalize
+              break
+            end
+          end
+        end
+        
+        # Check for duplicates using existing transaction check
+        # Avoid creating if same date, amount, description exists
+        unless Transaction.exists?(transaction_date: transaction_date, amount: amount, description: description)
+          Transaction.create!(
+            transaction_date: transaction_date,
+            amount: amount,
+            description: description,
+            transaction_type: transaction_type,
+            category: category
+          )
+          count += 1
+        end
+        
+      rescue => e
+        puts "Error parsing row: #{row.inspect} - #{e.message}"
+        next
+      end
+    end
+    
+    redirect "/?imported=#{count}"
+  else
+    redirect '/'
   end
 end
 

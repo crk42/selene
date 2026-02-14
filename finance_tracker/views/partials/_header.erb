@@ -5,6 +5,14 @@
        <a href="/">Finance Tracker</a>
     </h1>
     <div class="header-date"><%= Date.today.strftime('%B %d, %Y') %></div>
-    <button class="btn-primary" onclick="openModal()">+ Add Transaction</button>
+    <div class="header-actions">
+      <form action="/import" method="POST" enctype="multipart/form-data" style="display: inline-block; margin-right: 10px;">
+        <label for="file-upload" class="btn-secondary" style="cursor: pointer;">
+          Import CSV
+        </label>
+        <input id="file-upload" name="file" type="file" accept=".csv" style="display: none;" onchange="this.form.submit()">
+      </form>
+      <button class="btn-primary" onclick="openModal()">+ Add Transaction</button>
+    </div>
   </div>
 </header>
