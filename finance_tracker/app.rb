@@ -266,6 +266,7 @@ post '/import' do
         date_str = row[0]
         amount_str = row[1].gsub(',', '')
         description = row[2]
+        description = description.gsub(/Value Date: \d{2}\/\d{2}\/\d{2}/, '').strip
         
         # Parse date (DD/MM/YYYY)
         transaction_date = Date.strptime(date_str, '%d/%m/%Y')
