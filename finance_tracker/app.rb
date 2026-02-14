@@ -174,14 +174,23 @@ post '/import' do
     count = 0
     
     # Keyword mapping for categorization
+    # Categories are looked up in DB by name (capitalized key)
     keywords = {
-      'groceries' => ['woolworths', 'coles', 'aldi', 'iga', 'food'],
-      'transportation' => ['uber', 'did', 'ola', 'taxi', 'train', 'bus', 'opal', 'myki', 'fuel', 'petrol', 'bp', 'shell', '7-eleven', 'caltex', 'ampol'],
-      'dining' => ['restaurant', 'cafe', 'coffee', 'mcdonalds', 'kfc', 'hungry jacks', 'dominos', 'pizza', 'burger', 'sushi', 'grill', 'eats', 'menulog', 'doordash'],
-      'utilities' => ['energy', 'water', 'gas', 'telecom', 'internet', 'telstra', 'optus', 'vodafone', 'electricity'],
-      'entertainment' => ['netflix', 'spotify', 'movie', 'cinema', 'steam', 'playstation', 'xbox', 'nintendo'],
+      'groceries' => ['woolworths', 'coles', 'aldi', 'iga', 'food', 'market', 'grocer'],
+      'transportation' => ['uber', 'did', 'ola', 'taxi', 'train', 'bus', 'opal', 'myki', 'fuel', 'petrol', 'bp', 'shell', '7-eleven', 'caltex', 'ampol', 'service station', 'united'],
+      'dining' => ['restaurant', 'cafe', 'coffee', 'mcdonalds', 'kfc', 'hungry jacks', 'dominos', 'pizza', 'burger', 'sushi', 'grill', 'eats', 'menulog', 'doordash', 'lunch', 'dinner'],
+      'utilities' => ['energy', 'water', 'gas', 'telecom', 'internet', 'telstra', 'optus', 'vodafone', 'electricity', 'agl', 'origin'],
+      'entertainment' => ['netflix', 'spotify', 'movie', 'cinema', 'steam', 'playstation', 'xbox', 'nintendo', 'game', 'disney', 'prime', 'canva', 'youtube', 'sub'],
       'healthcare' => ['pharmacy', 'chemist', 'doctor', 'medical', 'dental', 'hospital', 'medicare'],
-      'shopping' => ['kmart', 'target', 'big w', 'myer', 'david jones', 'amazon', 'ebay', 'ikea', 'bunnings']
+      'shopping' => ['kmart', 'target', 'big w', 'myer', 'david jones', 'amazon', 'ebay', 'ikea', 'bunnings', 'jb hi fi', 'retail'],
+      'mortgage' => ['mortgage', 'loan repayment', 'home loan'],
+      'rent' => ['rent'],
+      'gym' => ['gym', 'fitness', 'anytime', 'workout'],
+      'insurance' => ['insurance', 'policy', 'premium', 'medibank', 'bupa', 'aami', 'nrma', 'racv', 'g i o', 'allianz'],
+      'savings' => ['savings', 'saver', 'term deposit', 'wealth', 'invest'],
+      'strata' => ['strata', 'body corp'],
+      'phone' => ['phone', 'mobile'],
+      'service' => ['service', 'mechanic', 'auto']
     }
 
     CSV.foreach(file, headers: false) do |row|
