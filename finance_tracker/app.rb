@@ -102,6 +102,12 @@ get '/' do
   @month_income = Transaction.total_income(month_start, month_end)
   @month_expenses = Transaction.total_expenses(month_start, month_end)
   @category_data = Transaction.category_expenses(month_start, month_end)
+  
+  # Calculate 6-month category breakdown
+  six_month_start = Date.today << 5 # Go back 5 months + current month = 6 months
+  six_month_start = Date.new(six_month_start.year, six_month_start.month, 1)
+  @category_data_six_months = Transaction.category_expenses(six_month_start, month_end)
+  
   @categories = Category.all.group_by(&:category_type) rescue {}
   
   erb :dashboard
@@ -180,7 +186,7 @@ get '/categories/:category/transactions' do
   offset = (page - 1) * per_page
 
   # Handle special case for "Uncategorized" or if category names are stored differently
-  transactions = Transaction.where(category: category_name)
+  transactions = Transaction.where(category: category_name, transaction_type: 'expense')
   
   # Apply date filtering if needed (optional, based on current month view in dashboard)
   # For now, we'll return all history for that category as implied by "paginated list"
