@@ -1,0 +1,21 @@
+<div id="categoryTransactionModal" class="modal">
+  <div class="modal-content large-modal">
+    <div class="modal-header">
+      <h2 id="categoryModalTitle">Category Details</h2>
+      <span class="close" onclick="closeCategoryModal()">&times;</span>
+    </div>
+    
+    <div class="modal-body">
+      <div id="categoryTransactionsList" class="transactions-list">
+        <!-- Transactions will be loaded here -->
+        <div class="loading-spinner">Loading...</div>
+      </div>
+      
+      <div id="categoryPagination" class="pagination-controls">
+        <button id="prevPageBtn" onclick="changeCategoryPage(-1)" disabled>&laquo; Previous</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button id="nextPageBtn" onclick="changeCategoryPage(1)" disabled>Next &raquo;</button>
+      </div>
+    </div>
+  </div>
+</div>

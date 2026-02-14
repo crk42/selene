@@ -5,6 +5,10 @@ require 'json'
 require 'date'
 require 'csv'
 
+configure :development do
+  require 'sinatra/reloader'
+end
+
 # Database configuration
 ActiveRecord::Base.establish_connection(
   adapter: 'sqlite3',
@@ -166,6 +170,65 @@ post '/categories' do
     status 400
     json({ error: "Missing name or type" })
   end
+end
+
+get '/categories/:category/transactions' do
+  content_type :json
+  category_name = params[:category]
+  page = (params[:page] || 1).to_i
+  per_page = 10
+  offset = (page - 1) * per_page
+
+  # Handle special case for "Uncategorized" or if category names are stored differently
+  transactions = Transaction.where(category: category_name)
+  
+  # Apply date filtering if needed (optional, based on current month view in dashboard)
+  # For now, we'll return all history for that category as implied by "paginated list"
+  # But usually dashboard charts are for specific range. 
+  # The pie chart in dashboard is for the current month.
+  # "Category Breakdown" chart uses @category_data which is filtered by current month in '/' route.
+  # So we should probably filter by current month to match the chart data?
+  # The user request says "show a paginated list of transactions in that catagory".
+  # It doesn't explicitly restrict to the current month, but clicking a slice of "Monthly breakdown" 
+  # implies drilling down into *that* data.
+  # Let's support an optional `month` parameter, default to current month if called from dashboard context.
+  # OR better, just accept start_date and end_date params.
+  
+  # Re-reading app.rb:
+  # @category_data = Transaction.category_expenses(month_start, month_end)
+  # So the chart shows current month.
+  
+  if params[:month] && params[:year]
+    date = Date.new(params[:year].to_i, params[:month].to_i, 1)
+    start_date = date
+    end_date = Date.new(date.year, date.month, -1)
+    transactions = transactions.where(transaction_date: start_date..end_date)
+  else
+    # Default to current month to match the default dashboard view
+    # But maybe the user wants to see ALL transactions for that category?
+    # Let's default to current month for consistency with the chart, 
+    # but arguably "Drill down" might mean "Show me everything".
+    # However, since the chart values match the current month, showing other months' transactions might be confusing.
+    # Let's stick to current month by default but allow overriding.
+    
+    # Actually, let's keep it simple first: return ALL transactions for that category sorted by date.
+    # If the user clicked "Rent" ($2000) for this month, seeing last month's rent too is fine.
+    # I will stick to returning all for now, or maybe parameterize it.
+    # Let's check `Transaction.recent`. It orders by date desc.
+    transactions = transactions.order(transaction_date: :desc)
+  end
+
+  total_count = transactions.count
+  total_pages = (total_count / per_page.to_f).ceil
+  
+  paginated_transactions = transactions.limit(per_page).offset(offset)
+  
+  json({
+    transactions: paginated_transactions,
+    page: page,
+    total_pages: total_pages,
+    total_count: total_count
+  })
 end
 
 post '/import' do

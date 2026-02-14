@@ -100,6 +100,16 @@
         responsive: true,
         maintainAspectRatio: false,
         cutout: '70%',
+        onClick: (e, activeElements) => {
+          if (activeElements.length > 0) {
+            const index = activeElements[0].index;
+            const label = labels[index]; // 'labels' is available in this scope
+            openCategoryModal(label);
+          }
+        },
+        onHover: (event, chartElement) => {
+          event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+        },
         plugins: {
           legend: {
             position: 'bottom',
@@ -127,6 +137,7 @@
           }
         }
       }
+
     });
   }
 
@@ -277,4 +288,99 @@
     // Trigger initially
     typeSelect.dispatchEvent(new Event('change'));
   }
+</script>
+
+<script>
+  // Category Modal Logic
+  let currentCategory = null;
+  let currentPage = 1;
+  const categoryModal = document.getElementById("categoryTransactionModal");
+  const categoryList = document.getElementById("categoryTransactionsList");
+  const prevBtn = document.getElementById("prevPageBtn");
+  const nextBtn = document.getElementById("nextPageBtn");
+  const pageInfo = document.getElementById("pageInfo");
+
+  function openCategoryModal(category) {
+    currentCategory = category;
+    currentPage = 1;
+    document.getElementById("categoryModalTitle").textContent = `${category} Transactions`;
+    categoryModal.style.display = "block";
+    fetchCategoryTransactions(category, currentPage);
+  }
+
+  function closeCategoryModal() {
+    categoryModal.style.display = "none";
+  }
+
+  function changeCategoryPage(direction) {
+    currentPage += direction;
+    fetchCategoryTransactions(currentCategory, currentPage);
+  }
+
+  function fetchCategoryTransactions(category, page) {
+    categoryList.innerHTML = '<div class="loading-spinner">Loading...</div>';
+    
+    fetch(`/categories/${encodeURIComponent(category)}/transactions?page=${page}`)
+      .then(response => response.json())
+      .then(data => {
+        renderCategoryTransactions(data.transactions);
+        updatePagination(data.page, data.total_pages);
+      })
+      .catch(error => {
+        console.error('Error fetching transactions:', error);
+        categoryList.innerHTML = '<div class="error-message">Failed to load transactions.</div>';
+      });
+  }
+
+  function renderCategoryTransactions(transactions) {
+    if (transactions.length === 0) {
+      categoryList.innerHTML = '<div class="empty-state"><p>No transactions found.</p></div>';
+      return;
+    }
+
+    const html = transactions.map(t => {
+      // Handle date parsing (assuming format YYYY-MM-DD from backend JSON)
+      const dateStr = t.transaction_date;
+      const date = new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      
+      const amountClass = t.transaction_type === 'income' ? 'income' : 'expense';
+      const sign = t.transaction_type === 'income' ? '+' : '-';
+      
+      return `
+        <div class="transaction-item ${t.transaction_type}">
+          <div class="transaction-left">
+            <div class="transaction-icon">
+              ${t.transaction_type === 'income' ? '💵' : '💳'}
+            </div>
+            <div class="transaction-details">
+              <div class="transaction-description">${t.description}</div>
+              <div class="transaction-meta">
+                ${date}
+              </div>
+            </div>
+          </div>
+          <div class="transaction-right">
+            <div class="transaction-amount ${amountClass}">
+              ${sign}$${parseFloat(t.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    categoryList.innerHTML = html;
+  }
+
+  function updatePagination(current, total) {
+    pageInfo.textContent = `Page ${current} of ${total}`;
+    prevBtn.disabled = current <= 1;
+    nextBtn.disabled = current >= total;
+  }
+
+  // Close modal when clicking outside
+  window.addEventListener('click', function(event) {
+    if (event.target == categoryModal) {
+      closeCategoryModal();
+    }
+  });
 </script>
