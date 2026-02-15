@@ -429,6 +429,13 @@
     currentCategory = category;
     currentPage = 1;
     document.getElementById("categoryModalTitle").textContent = `${category} Transactions`;
+    
+    // Update dropdown value
+    const select = document.getElementById("categoryModalSelect");
+    if (select) {
+      select.value = category;
+    }
+
     categoryModal.style.display = "block";
     fetchCategoryTransactions(category, currentPage);
   }

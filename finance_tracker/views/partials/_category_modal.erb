@@ -1,7 +1,20 @@
 <div id="categoryTransactionModal" class="modal">
   <div class="modal-content large-modal">
     <div class="modal-header">
-      <h2 id="categoryModalTitle">Category Details</h2>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <h2 id="categoryModalTitle" style="margin: 0;">Category Details</h2>
+        <select id="categoryModalSelect" onchange="openCategoryModal(this.value)" style="width: auto; padding: 0.25rem 0.5rem; font-size: 1rem; border-radius: 0.5rem;">
+          <% if @categories %>
+            <% @categories.each do |type, categories| %>
+              <optgroup label="<%= type.capitalize %>">
+                <% categories.each do |cat| %>
+                  <option value="<%= cat.name %>"><%= cat.name %></option>
+                <% end %>
+              </optgroup>
+            <% end %>
+          <% end %>
+        </select>
+      </div>
       <span class="close" onclick="closeCategoryModal()">&times;</span>
     </div>
     
