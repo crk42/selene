@@ -740,6 +740,61 @@ select:focus {
   }
 }
 
+/* Category Actions */
+.btn-icon-action {
+  background: rgba(139, 92, 246, 0.1);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: inherit;
+}
+
+.btn-icon-action:hover {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  transform: translateY(-1px);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.input-with-action {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  animation: slideInDown 0.2s ease;
+}
+
+.input-with-action input {
+  flex: 1;
+}
+
+.btn-action {
+  background: var(--accent-income);
+  color: white;
+  border: none;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn-action:hover {
+  background: #16a34a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
 /* Category Modal Specifics */
 .large-modal {
   max-width: 800px;

@@ -304,6 +304,24 @@
     }
   }
 
+  function toggleNewCategoryInput() {
+    const newCategoryInput = document.getElementById('newCategoryInput');
+    const categorySelect = document.getElementById('category');
+    
+    if (newCategoryInput.style.display === 'none' || newCategoryInput.classList.contains('hidden')) {
+      newCategoryInput.style.display = 'flex';
+      newCategoryInput.classList.remove('hidden');
+      categorySelect.value = 'new_category_option';
+      newCategoryInput.querySelector('input').focus();
+    } else {
+      newCategoryInput.style.display = 'none';
+      newCategoryInput.classList.add('hidden');
+      if (categorySelect.value === 'new_category_option') {
+        categorySelect.value = "";
+      }
+    }
+  }
+
   function checkNewCategory(select) {
     const newCategoryInput = document.getElementById('newCategoryInput');
     if (select.value === 'new_category_option') {
