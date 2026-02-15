@@ -88,6 +88,15 @@ post '/transactions' do
   end
 end
 
+
+post '/transactions/bulk-delete' do
+  ids = params[:ids]
+  if ids.is_a?(Array) && ids.any?
+    Transaction.where(id: ids).destroy_all
+  end
+  redirect back
+end
+
 post '/transactions/:id' do
   transaction = Transaction.find(params[:id])
   
@@ -106,19 +115,48 @@ post '/transactions/:id' do
   redirect back
 end
 
+patch '/api/transactions/:id' do
+  content_type :json
+  begin
+    transaction = Transaction.find(params[:id])
+    
+    payload = JSON.parse(request.body.read)
+    
+    # Whitelist allowed fields for update
+    allowed_fields = ['category', 'description', 'amount', 'transaction_type', 'transaction_date']
+    updates = payload.select { |k, v| allowed_fields.include?(k) }
+    
+    if updates.any?
+      # Handle date parsing if present
+      if updates['transaction_date']
+        updates['transaction_date'] = Date.parse(updates['transaction_date']) rescue nil
+      end
+      
+      if transaction.update(updates)
+        json transaction
+      else
+        status 422
+        json({ error: transaction.errors.full_messages })
+      end
+    else
+      status 400
+      json({ error: "No valid fields to update" })
+    end
+  rescue ActiveRecord::RecordNotFound
+    status 404
+    json({ error: "Transaction not found" })
+  end
+end
+
+
+
 post '/transactions/:id/delete' do
   transaction = Transaction.find(params[:id])
   transaction.destroy
   redirect back
 end
 
-post '/transactions/bulk-delete' do
-  ids = params[:ids]
-  if ids && ids.any?
-    Transaction.where(id: ids).destroy_all
-  end
-  redirect back
-end
+
 
 get '/categories' do
   content_type :json
