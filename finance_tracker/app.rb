@@ -57,7 +57,7 @@ get '/' do
   six_month_start = Date.new(six_month_start.year, six_month_start.month, 1)
   @category_data_six_months = Transaction.category_expenses(six_month_start, month_end)
   
-  @categories = Category.all.group_by(&:category_type) rescue {}
+  @categories = Category.order(:name).group_by(&:category_type) rescue {}
   
   erb :dashboard
 end
@@ -160,7 +160,7 @@ end
 
 get '/categories' do
   content_type :json
-  categories = Category.all.group_by(&:category_type)
+  categories = Category.order(:name).group_by(&:category_type)
   categories.to_json
 end
 
