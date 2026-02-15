@@ -3,6 +3,7 @@ require 'sinatra/json'
 require 'active_record'
 require 'json'
 require 'date'
+require 'csv'
 
 configure :development do
   require 'sinatra/reloader'
@@ -65,6 +66,18 @@ end
 get '/transactions' do
   @transactions = Transaction.recent
   erb :history
+end
+
+get '/transactions/export' do
+  content_type 'text/csv'
+  attachment "transactions_#{Date.today}.csv"
+  
+  CSV.generate do |csv|
+    csv << ['ID', 'Date', 'Description', 'Amount', 'Type', 'Category']
+    Transaction.order(transaction_date: :desc).each do |t|
+      csv << [t.id, t.transaction_date, t.description, t.amount, t.transaction_type, t.category]
+    end
+  end
 end
 
 post '/transactions' do

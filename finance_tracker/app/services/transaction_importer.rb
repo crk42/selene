@@ -26,32 +26,64 @@ class TransactionImporter
 
   def import
     count = 0
+
+    is_io = @file_path.respond_to?(:read)
     
-    CSV.foreach(@file_path, headers: false) do |row|
-      # CBA Format: Date, Amount, Description, Balance
-      # Example: 13/02/2026,"-75.00","Transfer To Ubank Saver - New App 2022 CommBank App food","+24.41"
-      
-      next if row.length < 3 || row[0].nil? # Skip invalid rows
-      
+    # Read first line to detect format
+    first_line = ''
+    if is_io
+      @file_path.rewind if @file_path.respond_to?(:rewind)
+      first_line = @file_path.readline.strip rescue ''
+      @file_path.rewind if @file_path.respond_to?(:rewind)
+    else
+      first_line = File.open(@file_path, &:readline).strip rescue ''
+    end
+    
+    # Remove BOM if present
+    first_line = first_line.sub("\xEF\xBB\xBF", "")
+    
+    # Check for export format using regex to handle potential quotes or whitespace
+    # Matches: ID, Date, Description, Amount, Type, Category (case insensitive, allowing surrounding characters)
+    is_export_format = first_line.match?(/ID.*Date.*Description.*Amount.*Type.*Category/i)
+    
+    csv_options = is_export_format ? { headers: true, header_converters: lambda { |h| h.strip } } : { headers: false }
+
+    # Define processing block to avoid duplication
+    process_row = lambda do |row|
       begin
-        date_str = row[0]
-        amount_str = row[1].gsub(',', '')
-        description = row[2]
-        description = description.gsub(/Value Date: \d{2}\/\d{2}\/\d{2}/, '').strip
+        if is_export_format
+          # ID,Date,Description,Amount,Type,Category
+          # Example: 1,2026-02-15,Groceries,50.0,expense,Groceries
+          
+          if row['Date'].nil?
+            return
+          end
+
+          transaction_date = Date.parse(row['Date'])
+          amount = row['Amount'].to_f
+          description = row['Description']
+          transaction_type = row['Type']
+          category = row['Category']
+          
+        else
+          # CBA Format: Date, Amount, Description, Balance
+          
+          return if row.length < 3 || row[0].nil? # Skip invalid rows
+          
+          date_str = row[0]
+          amount_str = row[1].gsub(',', '')
+          description = row[2]
+          description = description.gsub(/Value Date: \d{2}\/\d{2}\/\d{2}/, '').strip
+          
+          transaction_date = Date.strptime(date_str, '%d/%m/%Y')
+          
+          amount_val = amount_str.to_f
+          transaction_type = amount_val < 0 ? 'expense' : 'income'
+          amount = amount_val.abs
+          
+          category = categorize(description, transaction_type)
+        end
         
-        # Parse date (DD/MM/YYYY)
-        transaction_date = Date.strptime(date_str, '%d/%m/%Y')
-        
-        # Parse amount and type
-        amount_val = amount_str.to_f
-        transaction_type = amount_val < 0 ? 'expense' : 'income'
-        amount = amount_val.abs
-        
-        # Auto-categorize
-        category = categorize(description, transaction_type)
-        
-        # Check for duplicates using existing transaction check
-        # Avoid creating if same date, amount, description exists
         unless Transaction.exists?(transaction_date: transaction_date, amount: amount, description: description)
           Transaction.create!(
             transaction_date: transaction_date,
@@ -65,8 +97,13 @@ class TransactionImporter
         
       rescue => e
         puts "Error parsing row: #{row.inspect} - #{e.message}"
-        next
       end
+    end
+
+    if is_io
+       CSV.new(@file_path, **csv_options).each(&process_row)
+    else
+       CSV.foreach(@file_path, **csv_options, &process_row)
     end
     
     count
