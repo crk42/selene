@@ -214,9 +214,45 @@
 
   // Modal functionality
   const modal = document.getElementById("transactionModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const transactionForm = document.getElementById("transactionForm");
   
-  function openModal() {
+  function openAddModal() {
     modal.style.display = "block";
+    modalTitle.textContent = "Add Transaction";
+    transactionForm.action = "/transactions";
+    transactionForm.reset();
+    
+    // Set default date to today
+    const dateInput = document.getElementById('transaction_date');
+    if (dateInput) {
+      dateInput.valueAsDate = new Date();
+    }
+    
+    // Reset category view
+    const categorySelect = document.getElementById('category');
+    if (categorySelect) categorySelect.value = "";
+  }
+  
+  function editTransaction(button) {
+    const transaction = JSON.parse(button.dataset.transaction);
+    
+    modal.style.display = "block";
+    modalTitle.textContent = "Edit Transaction";
+    transactionForm.action = `/transactions/${transaction.id}`;
+    
+    document.getElementById('description').value = transaction.description;
+    document.getElementById('amount').value = transaction.amount;
+    document.getElementById('transaction_date').value = transaction.transaction_date;
+    
+    const typeSelect = document.getElementById('transaction_type');
+    typeSelect.value = transaction.transaction_type;
+    
+    // Trigger change event to filter categories
+    typeSelect.dispatchEvent(new Event('change'));
+    
+    const categorySelect = document.getElementById('category');
+    categorySelect.value = transaction.category;
   }
   
   function closeModal() {

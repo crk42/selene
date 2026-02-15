@@ -1,10 +1,10 @@
 <div id="transactionModal" class="modal">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>Add Transaction</h2>
+      <h2 id="modalTitle">Add Transaction</h2>
       <span class="close" onclick="closeModal()">&times;</span>
     </div>
-    <form action="/transactions" method="POST">
+    <form action="/transactions" method="POST" id="transactionForm">
       <div class="form-group">
         <label for="description">Description</label>
         <input type="text" id="description" name="description" placeholder="e.g. Salary, Groceries" required>

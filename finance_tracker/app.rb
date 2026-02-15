@@ -88,6 +88,24 @@ post '/transactions' do
   end
 end
 
+post '/transactions/:id' do
+  transaction = Transaction.find(params[:id])
+  
+  amount = params[:amount].to_f
+  
+  if transaction
+    transaction.update(
+      description: params[:description],
+      amount: amount,
+      transaction_type: params[:transaction_type],
+      category: params[:category],
+      transaction_date: Date.parse(params[:transaction_date])
+    )
+  end
+
+  redirect back
+end
+
 post '/transactions/:id/delete' do
   transaction = Transaction.find(params[:id])
   transaction.destroy
@@ -184,5 +202,9 @@ helpers do
     parts = sprintf("%.#{precision}f", number).split('.')
     parts[0].gsub!(/(\d)(?=(\d{3})+(?!\d))/, "\\1#{delimiter}")
     parts.join('.')
+  end
+
+  def h(text)
+    Rack::Utils.escape_html(text)
   end
 end

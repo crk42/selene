@@ -596,15 +596,32 @@ select:focus {
 .btn-delete {
   background: none;
   border: none;
-  color: #64748b;
+  color: #9ca3af;
   cursor: pointer;
-  padding: 0.6rem;
-  border-radius: 0.5rem;
+  padding: 4px;
+  border-radius: 4px;
   transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.4;
+}
+
+.btn-delete:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.btn-edit {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  margin-right: 4px;
+}
+
+.btn-edit:hover {
+  color: #fbbf24;
+  background-color: rgba(251, 191, 36, 0.1);
 }
 
 .transaction-item:hover .btn-delete {

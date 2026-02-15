@@ -9,7 +9,13 @@ A modern, lightweight personal finance tracking application built with Ruby/Sina
 - **📊 Interactive Dashboard**: Real-time overview of your financial health.
 - **💰 Financial Summaries**: Instant calculation of total income, expenses, and current balance.
 - **📈 Trend Analysis**: 6-month interactive chart visualizing income vs. expenses trends.
-- **📝 Transaction Tracking**: detailed list of recent transactions with category tagging.
+- **📝 Transaction Management**: 
+  - View detailed list of recent transactions.
+  - **Create**: Add new income or expense records.
+  - **Edit**: Modify existing transaction details via a modal interface.
+  - **Delete**: Remove single transactions or use **bulk delete** for multiple items.
+- **📂 Category Management**: Create and manage custom transaction categories.
+- **📥 Data Import**: Import transactions from CSV files.
 - **📱 Responsive Design**: fully optimized for desktop and mobile devices.
 - **🌙 Dark Mode**: sleek, eye-strain-reducing dark interface with glassmorphism effects.
 
@@ -63,8 +69,6 @@ A modern, lightweight personal finance tracking application built with Ruby/Sina
 
 ## Future Roadmap
 
-- [ ] Add Transaction feature (Create/Edit/Delete).
-- [ ] Category management.
 - [ ] Monthly reports and export functionality.
 - [ ] User authentication.
 
