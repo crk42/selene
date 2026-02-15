@@ -533,7 +533,8 @@ select {
 }
 
 select option {
-  background-color: #1e293b;
+  background-color: #0f172a;
+  /* Darker background for options */
   color: var(--text-primary);
 }
 
@@ -541,7 +542,8 @@ input:focus,
 select:focus {
   outline: none;
   border-color: #8b5cf6;
-  background: rgba(255, 255, 255, 0.1);
+  background: #1e293b;
+  /* Keep dark background */
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
